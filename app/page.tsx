@@ -55,7 +55,6 @@ export default function LuckyDraw() {
   const rollingSpeedRef = useRef(animationSpeed);
   const rollingIndexRef = useRef(0);
 
-  // Generate extended list for smooth rolling
   const generateExtendedNames = () => {
     const extended = [];
     for (let i = 0; i < 20; i++) {
@@ -180,7 +179,7 @@ export default function LuckyDraw() {
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 pt-8">
           <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-600 mb-4 drop-shadow-lg">
             𓀀 LUCKY DRAW 𓀀
           </h1>
