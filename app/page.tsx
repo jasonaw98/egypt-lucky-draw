@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Play, Square, RotateCcw } from 'lucide-react';
+import { Trophy, Play, Square } from 'lucide-react';
 
 const dummyNames = [
   'Ahmed Hassan',
@@ -138,26 +138,6 @@ export default function LuckyDraw() {
       slowDownTimeoutRef.current = setTimeout(slowDownStep, speed);
     };
     slowDownStep();
-  };
-
-  const reset = () => {
-    if (rollIntervalRef.current) {
-      clearInterval(rollIntervalRef.current);
-    }
-    if (slowDownTimeoutRef.current) {
-      clearTimeout(slowDownTimeoutRef.current);
-    }
-    if (autoStopTimeoutRef.current) {
-      clearTimeout(autoStopTimeoutRef.current);
-      autoStopTimeoutRef.current = null;
-    }
-
-    setIsRolling(false);
-    setWinner(null);
-    setShowWinner(false);
-    setCurrentNames(generateExtendedNames());
-    setAnimationSpeed(100);
-    setScrollOffset(0);
   };
 
   useEffect(() => {
@@ -330,7 +310,7 @@ export default function LuckyDraw() {
         {/* Instructions */}
         <div className="text-center mt-8 text-amber-200">
           <p className="text-lg">
-            Click "Start Draw" to begin the lucky draw, then "Stop Draw" to select a winner!
+            Click &quot;Start Draw&quot; to begin the lucky draw, then &quot;Stop Draw&quot; to select a winner!
           </p>
         </div>
       </div>
