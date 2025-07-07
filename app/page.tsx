@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Play, Square } from 'lucide-react';
@@ -140,6 +140,23 @@ export default function LuckyDraw() {
     slowDownStep();
   };
 
+  // Add this useCallback for toggling
+  const handleSpaceBar = useCallback((e: KeyboardEvent) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (isRolling) {
+        stopRolling();
+      } else {
+        startRolling();
+      }
+    }
+  }, [isRolling]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleSpaceBar);
+    return () => window.removeEventListener('keydown', handleSpaceBar);
+  }, [handleSpaceBar]);
+
   useEffect(() => {
     return () => {
       if (rollIntervalRef.current) {
@@ -155,7 +172,7 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-800 to-amber-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-800 to-amber-800 p-4 cursor-none">
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
