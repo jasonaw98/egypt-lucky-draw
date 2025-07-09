@@ -172,18 +172,9 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-800 to-amber-800 p-4 cursor-none">
+    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-800 to-amber-800 p-4 cursor-non">
 
       <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 pt-8">
-          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-600 mb-4 drop-shadow-lg">
-            𓀀 LUCKY DRAW 𓀀
-          </h1>
-          <p className="text-xl md:text-2xl text-amber-200 font-semibold tracking-wide">
-            ✨ Egyptian Fortune Wheel ✨
-          </p>
-        </div>
 
         {/* Main Slot Machine */}
         <div className="flex justify-center mb-8">
@@ -252,38 +243,8 @@ export default function LuckyDraw() {
                   </div>
                 </div>
               </div>
-
-              {/* Bottom decorative border */}
-              <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-2">
-                <div className="flex justify-center space-x-6 text-2xl">
-                  <span className={isRolling ? 'animate-spin' : ''}>𓊪</span>
-                  <span className={isRolling ? 'animate-bounce' : ''}>𓀭</span>
-                  <span className={isRolling ? 'animate-spin' : ''}>𓊪</span>
-                </div>
-              </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Controls */}
-        <div className="flex justify-center space-x-6 mb-8">
-          {!isRolling ? (
-            <Button
-              onClick={startRolling}
-              size="lg"
-              className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white cursor-pointer font-bold py-4 px-8 rounded-xl shadow-lg text-xl border-2 border-emerald-400 transition-all duration-300 transform hover:scale-105">
-              <Play className="mr-2 h-6 w-6" />
-              Start Draw
-            </Button>
-          ) : (
-            <Button
-              onClick={stopRolling}
-              size="lg"
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold cursor-pointer py-4 px-8 rounded-xl shadow-lg text-xl border-2 border-red-400 transition-all duration-300 transform hover:scale-105">
-              <Square className="mr-2 h-6 w-6" />
-              Stop Draw
-            </Button>
-          )}
         </div>
 
         {/* Winner Announcement */}
@@ -323,13 +284,7 @@ export default function LuckyDraw() {
             </div>
           </div>
         )}
-
-        {/* Instructions */}
-        <div className="text-center mt-8 text-amber-200">
-          <p className="text-lg">
-            Click &quot;Start Draw&quot; to begin the lucky draw, then &quot;Stop Draw&quot; to select a winner!
-          </p>
-        </div>
+ 
       </div>
     </div>
   );
