@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Play, Square } from 'lucide-react';
+import Image from 'next/image';
 
 const dummyNames = [
   'Ahmed Hassan',
@@ -54,6 +55,8 @@ export default function LuckyDraw() {
   const [scrollOffset, setScrollOffset] = useState(0);
   const rollingSpeedRef = useRef(animationSpeed);
   const rollingIndexRef = useRef(0);
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashMoved, setSplashMoved] = useState(false);
 
   const generateExtendedNames = () => {
     const extended = [];
@@ -62,6 +65,18 @@ export default function LuckyDraw() {
     }
     return extended;
   };
+
+  useEffect(() => {
+    if (!showSplash) return;
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.code === 'Enter') {
+        setSplashMoved(true);
+        setTimeout(() => setShowSplash(false), 100); // Wait for animation
+      }
+    };
+    window.addEventListener('keydown', handleEnter);
+    return () => window.removeEventListener('keydown', handleEnter);
+  }, [showSplash]);
 
   useEffect(() => {
     setCurrentNames(generateExtendedNames());
@@ -141,16 +156,19 @@ export default function LuckyDraw() {
   };
 
   // Add this useCallback for toggling
-  const handleSpaceBar = useCallback((e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      if (isRolling) {
-        stopRolling();
-      } else {
-        startRolling();
+  const handleSpaceBar = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (isRolling) {
+          stopRolling();
+        } else {
+          startRolling();
+        }
       }
-    }
-  }, [isRolling]);
+    },
+    [isRolling]
+  );
 
   useEffect(() => {
     window.addEventListener('keydown', handleSpaceBar);
@@ -172,119 +190,130 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-blue-800 to-amber-800 p-4 cursor-non">
-
-      <div className="relative z-10 max-w-6xl mx-auto">
-
-        {/* Main Slot Machine */}
-        <div className="flex justify-center mb-8">
-          <Card className="w-full max-w-2xl bg-gradient-to-b from-amber-100 to-amber-200 border-4 border-amber-400 shadow-2xl">
-            <CardContent className="p-0">
-              {/* Decorative Egyptian border */}
-              <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-4">
-                <div className="flex justify-center items-center space-x-4">
-                  <div className="text-3xl">𓂀</div>
-                  <div className="text-2xl font-bold text-amber-100">CONTESTANTS</div>
-                  <div className="text-3xl">𓂀</div>
-                </div>
-              </div>
-
-              {/* Slot Machine Display */}
-              <div className="relative bg-gradient-to-b from-blue-950 to-blue-900 p-6 overflow-hidden">
-                {/* Highlight box for center name */}
-                <div className="absolute inset-x-6 top-1/2 transform -translate-y-1/2 z-30">
-                  <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-4 rounded-lg border-4 border-yellow-300 shadow-2xl animate-">
-                    <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-2 rounded">
-                      <div className="text-center text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
-                        {winner || currentNames[7] || 'Ready to Start'}
-                      </div>
-                    </div>
+    <div className="min-h-screen bg-black p-4 flex w-full h-full items-center">
+      <div
+        className={`fixed inset-0 flex items-center justify-center z-50 transition-transform duration-1000 ease-in-out bg-black bg-opacity-80 ${
+          splashMoved ? '-translate-y-full pointer-events-none' : ''
+        }`}>
+        <Image
+          src="/kv.jpg"
+          alt="Splash"
+          width={2200}
+          height={640}
+          className="rounded-xl shadow-2xl"
+        />
+      </div>
+      <div className="w-full h-full">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          {/* Main Slot Machine */}
+          <div className="flex justify-center mb-8">
+            <Card className="w-full max-w-2xl bg-gradient-to-b from-amber-100 to-amber-200 border-4 border-amber-400 shadow-2xl">
+              <CardContent className="p-0">
+                {/* Decorative Egyptian border */}
+                <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-4">
+                  <div className="flex justify-center items-center space-x-4">
+                    <div className="text-3xl">𓂀</div>
+                    <div className="text-2xl font-bold text-amber-100">CONTESTANTS</div>
+                    <div className="text-3xl">𓂀</div>
                   </div>
                 </div>
 
-                {/* Rolling Names Display */}
-                <div className="h-96 overflow-hidden relative">
-                  {/* Top and bottom fade gradients */}
-                  <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-950 to-transparent z-20 pointer-events-none"></div>
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-blue-950 to-transparent z-20 pointer-events-none"></div>
-
-                  {/* Animated rolling container */}
-                  <div
-                    className={`space-y-2 transition-transform ${
-                      isRolling ? 'duration-75' : 'duration-500'
-                    } ease-linear`}
-                    style={{
-                      transform: `translateY(${
-                        isRolling ? -(scrollOffset * 60) % (60 * 15) : 0
-                      }px)`,
-                    }}>
-                    {currentNames.slice(0, 50).map((name, index) => (
-                      <div
-                        key={`${name}-${index}-${scrollOffset}`}
-                        className={`text-center py-5 px-4 rounded-lg font-semibold text-lg transition-all duration-300 ${
-                          index === 7
-                            ? 'bg-transparent text-transparent' // Hidden in center (highlight box shows)
-                            : index < 7 || index > 7
-                            ? `bg-blue-800/50 text-amber-100 border border-blue-600/50 ${
-                                isRolling ? '' : ''
-                              }`
-                            : 'bg-blue-700/50 text-amber-200'
-                        } ${isRolling ? 'blur-[0.5px]' : ''}`}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                        }}>
-                        <div
-                          className={`${isRolling ? 'animate-bounce' : ''}`}
-                          style={{ animationDelay: `${index * 100}ms` }}>
-                          {name}
+                {/* Slot Machine Display */}
+                <div className="relative bg-gradient-to-b from-blue-950 to-blue-900 p-6 overflow-hidden">
+                  {/* Highlight box for center name */}
+                  <div className="absolute inset-x-6 top-1/2 transform -translate-y-1/2 z-30">
+                    <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-4 rounded-lg border-4 border-yellow-300 shadow-2xl animate-">
+                      <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-2 rounded">
+                        <div className="text-center text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                          {winner || currentNames[7] || 'Ready to Start'}
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
+                  {/* Rolling Names Display */}
+                  <div className="h-96 overflow-hidden relative">
+                    {/* Top and bottom fade gradients */}
+                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-950 to-transparent z-20 pointer-events-none"></div>
+                    <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-blue-950 to-transparent z-20 pointer-events-none"></div>
+
+                    {/* Animated rolling container */}
+                    <div
+                      className={`space-y-2 transition-transform ${
+                        isRolling ? 'duration-75' : 'duration-500'
+                      } ease-linear`}
+                      style={{
+                        transform: `translateY(${
+                          isRolling ? -(scrollOffset * 60) % (60 * 15) : 0
+                        }px)`,
+                      }}>
+                      {currentNames.slice(0, 50).map((name, index) => (
+                        <div
+                          key={`${name}-${index}-${scrollOffset}`}
+                          className={`text-center py-5 px-4 rounded-lg font-semibold text-lg transition-all duration-300 ${
+                            index === 7
+                              ? 'bg-transparent text-transparent' // Hidden in center (highlight box shows)
+                              : index < 7 || index > 7
+                              ? `bg-blue-800/50 text-amber-100 border border-blue-600/50 ${
+                                  isRolling ? '' : ''
+                                }`
+                              : 'bg-blue-700/50 text-amber-200'
+                          } ${isRolling ? 'blur-[0.5px]' : ''}`}
+                          style={{
+                            animationDelay: `${index * 50}ms`,
+                          }}>
+                          <div
+                            className={`${isRolling ? 'animate-bounce' : ''}`}
+                            style={{ animationDelay: `${index * 100}ms` }}>
+                            {name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Winner Announcement */}
-        {showWinner && winner && (
-          <div>
-            {/* Overlay */}
-            <div className="fixed inset-0 bg-black opacity-30 z-40"></div>
-            {/* Centered Dialog */}
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-              <div className="text-center">
-                <Card className="inline-block bg-gradient-to-r from-yellow-400 to-amber-400 border-4 border-yellow-300 shadow-2xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-center space-x-4 mb-4">
-                      <Trophy className="h-12 w-12 text-amber-800 animate-bounce" />
-                      <div className="text-3xl animate-pulse">𓀀</div>
-                      <Trophy className="h-12 w-12 text-amber-800 animate-bounce" />
-                    </div>
-                    <h2 className="text-4xl font-bold text-amber-900 mb-2 animate-pulse">
-                      🎉 WINNER! 🎉
-                    </h2>
-                    <p className="text-3xl font-bold text-amber-800 bg-white/20 p-3 rounded-lg animate-bounce">
-                      {winner}
-                    </p>
-                    <div className="mt-4 text-2xl">
-                      <span className="animate-spin inline-block">𓊪</span>
-                      <span className="animate-bounce inline-block mx-2">𓀭</span>
-                      <span className="animate-spin inline-block">𓊪</span>
-                    </div>
-                    <Button
-                      onClick={() => setShowWinner(false)}
-                      className="mt-6 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl transition-all duration-300 transform hover:scale-105">
-                      Close
-                    </Button>
-                  </CardContent>
-                </Card>
+          {/* Winner Announcement */}
+          {showWinner && winner && (
+            <div>
+              {/* Overlay */}
+              <div className="fixed inset-0 bg-black opacity-30 z-40"></div>
+              {/* Centered Dialog */}
+              <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="text-center">
+                  <Card className="inline-block bg-gradient-to-r from-yellow-400 to-amber-400 border-4 border-yellow-300 shadow-2xl">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-center space-x-4 mb-4">
+                        <Trophy className="h-12 w-12 text-amber-800 animate-bounce" />
+                        <div className="text-3xl animate-pulse">𓀀</div>
+                        <Trophy className="h-12 w-12 text-amber-800 animate-bounce" />
+                      </div>
+                      <h2 className="text-4xl font-bold text-amber-900 mb-2 animate-pulse">
+                        🎉 WINNER! 🎉
+                      </h2>
+                      <p className="text-3xl font-bold text-amber-800 bg-white/20 p-3 rounded-lg animate-bounce">
+                        {winner}
+                      </p>
+                      <div className="mt-4 text-2xl">
+                        <span className="animate-spin inline-block">𓊪</span>
+                        <span className="animate-bounce inline-block mx-2">𓀭</span>
+                        <span className="animate-spin inline-block">𓊪</span>
+                      </div>
+                      <Button
+                        onClick={() => setShowWinner(false)}
+                        className="mt-6 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl transition-all duration-300 transform hover:scale-105">
+                        Close
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
-          </div>
-        )}
- 
+          )}
+        </div>
       </div>
     </div>
   );
