@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+// import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
 const dummyNames = [
   "Fatima Al-Zahra",
@@ -37,15 +40,15 @@ export default function LuckyDraw() {
   const [winner, setWinner] = useState<string | null>(null);
   const [currentNames, setCurrentNames] = useState<string[]>([]);
   const [showWinner, setShowWinner] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(100);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashMoved, setSplashMoved] = useState(false);
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [animationSpeed, setAnimationSpeed] = useState(100);
-  const [scrollOffset, setScrollOffset] = useState(0);
   const rollingSpeedRef = useRef(animationSpeed);
   const rollingIndexRef = useRef(0);
-  // const [showSplash, setShowSplash] = useState(true);
-  // const [splashMoved, setSplashMoved] = useState(false);
 
   const generateExtendedNames = useCallback(() => {
     const extended = [];
@@ -55,33 +58,60 @@ export default function LuckyDraw() {
     return extended;
   }, []);
 
-  // useEffect(() => {
-  //   if (!showSplash) return;
-  //   const handleEnter = (e: KeyboardEvent) => {
-  //     if (e.code === "Enter") {
-  //       setSplashMoved(true);
-  //       setTimeout(() => setShowSplash(false), 100); // Wait for animation
-  //     }
-  //   };
-  //   window.addEventListener("keydown", handleEnter);
-  //   return () => window.removeEventListener("keydown", handleEnter);
-  // }, [showSplash]);
-
-  useEffect(() => {
-    // if (!showWinner) return;
-    const handleclose = (e: KeyboardEvent) => {
-      if (e.code === "Enter" || e.code === "Escape") {
-        setShowWinner(false);
-        // setTimeout(() => setShowWinner(false), 100); // Wait for animation
-      }
-    };
-    window.addEventListener("keydown", handleclose);
-    return () => window.removeEventListener("keydown", handleclose);
-  }, [showWinner]);
-
   useEffect(() => {
     setCurrentNames(generateExtendedNames());
   }, [generateExtendedNames]);
+
+  useEffect(() => {
+    if (!showSplash) return;
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.code === "Enter") {
+        setSplashMoved(true);
+        setTimeout(() => setShowSplash(false), 100);
+      }
+    };
+    window.addEventListener("keydown", handleEnter);
+    return () => window.removeEventListener("keydown", handleEnter);
+  }, [showSplash]);
+
+  useEffect(() => {
+    const handleClose = (e: KeyboardEvent) => {
+      if (showWinner && (e.code === "Enter" || e.code === "Escape")) {
+        setShowWinner(false);
+      }
+    };
+    window.addEventListener("keydown", handleClose);
+    return () => window.removeEventListener("keydown", handleClose);
+  }, [showWinner]);
+
+  const startRolling = useCallback(() => {
+    if (isRolling) return;
+    setIsRolling(true);
+    setWinner(null);
+    setShowWinner(false);
+    setAnimationSpeed(50);
+    setScrollOffset(0);
+    rollingSpeedRef.current = 50;
+    rollingIndexRef.current = 0;
+
+    const extendedNames = generateExtendedNames();
+
+    if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
+    rollIntervalRef.current = setInterval(() => {
+      rollingIndexRef.current = (rollingIndexRef.current + 1) % extendedNames.length;
+      setCurrentNames((prev) => {
+        const newNames = [...prev];
+        newNames.unshift(extendedNames[rollingIndexRef.current]);
+        return newNames.slice(0, 50); // Reduced to 50 for performance
+      });
+      setScrollOffset((prev) => prev + 1);
+    }, rollingSpeedRef.current);
+
+    if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
+    autoStopTimeoutRef.current = setTimeout(() => {
+      stopRolling();
+    }, 5000);
+  }, [isRolling, generateExtendedNames]);
 
   const stopRolling = useCallback(() => {
     if (!isRolling) return;
@@ -124,36 +154,6 @@ export default function LuckyDraw() {
     slowDownStep();
   }, [isRolling, currentNames, generateExtendedNames]);
 
-  const startRolling = useCallback(() => {
-    if (isRolling) return;
-    setIsRolling(true);
-    setWinner(null);
-    setShowWinner(false);
-    setAnimationSpeed(50);
-    setScrollOffset(0);
-    rollingSpeedRef.current = 50;
-    rollingIndexRef.current = 0;
-
-    const extendedNames = generateExtendedNames();
-
-    if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
-    rollIntervalRef.current = setInterval(() => {
-      rollingIndexRef.current =
-        (rollingIndexRef.current + 1) % extendedNames.length;
-      setCurrentNames((prev) => {
-        const newNames = [...prev];
-        newNames.unshift(extendedNames[rollingIndexRef.current]);
-        return newNames.slice(0, 50); // Reduced to 50 for performance
-      });
-      setScrollOffset((prev) => prev + 1);
-    }, rollingSpeedRef.current);
-
-    if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
-    autoStopTimeoutRef.current = setTimeout(() => {
-      stopRolling();
-    }, 5000);
-  }, [isRolling, generateExtendedNames, stopRolling]);
-
   const handleSpaceBar = useCallback(
     (e: KeyboardEvent) => {
       if (e.code === "Space") {
@@ -175,42 +175,23 @@ export default function LuckyDraw() {
 
   useEffect(() => {
     return () => {
-      if (rollIntervalRef.current) {
-        clearInterval(rollIntervalRef.current);
-      }
-      if (slowDownTimeoutRef.current) {
-        clearTimeout(slowDownTimeoutRef.current);
-      }
-      if (autoStopTimeoutRef.current) {
-        clearTimeout(autoStopTimeoutRef.current);
-      }
+      if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
+      if (slowDownTimeoutRef.current) clearTimeout(slowDownTimeoutRef.current);
+      if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-[url(/table-bg.jpeg)] bg-no-repeat bg-cover bg-center p-4 flex w-full h-full items-center">
-      {/* <div
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-transform duration-1000 ease-in-out bg-black bg-opacity-80 ${
-          splashMoved ? '-translate-y-full pointer-events-none' : ''
-        }`}>
-        <Image
-          src="/kv.jpg"
-          alt="Splash"
-          width={2200}
-          height={640}
-          className="rounded-xl shadow-2xl"
-        />
-      </div> */}
+
       <div className="w-full h-full">
         <div className="relative z-10">
-          {/* Main Slot Machine */}
           <div className="flex pl-12">
             <div className="w-full max-w-2xl">
-                {/* Slot Machine Display */}
-                <div className="relative bg-gradient-to-b  p-6 overflow-hidden rounded-2xl">
-                  {/* Highlight box for center name */}
+              <div className="p-0">
+                <div className="relative bg-gradient-to-b from-blue-950 to-blue-900 p-6 overflow-hidden rounded-2xl">
                   <div className="absolute inset-x-6 top-1/2 transform -translate-y-1/2 z-30">
-                    <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-4 rounded-lg border-4 border-yellow-300 shadow-2xl animate-">
+                    <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-4 rounded-lg border-4 border-yellow开始了300 shadow-2xl">
                       <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-2 rounded">
                         <div className="text-center text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
                           {winner || currentNames[6] || "Ready to Start"}
@@ -219,7 +200,7 @@ export default function LuckyDraw() {
                     </div>
                   </div>
 
-                  <div className="h-[30rem] overflow-hidden relative">
+                  <div className="h-96 overflow-hidden relative">
                     <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-950 to-transparent z-20 pointer-events-none"></div>
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-blue-950 to-transparent z-20 pointer-events-none"></div>
 
@@ -244,35 +225,33 @@ export default function LuckyDraw() {
                               : "bg-blue-700/50 text-amber-200"
                           } ${isRolling ? "blur-[0.5px]" : ""}`}
                         >
-                          <div
-                            className={`${isRolling ? "animate-bounce" : ""}`}
-                          >
+                          <div className={`${isRolling ? "animate-bounce" : ""}`}>
                             {name}
                           </div>
                         </div>
                       ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Winner Announcement */}
           {true && true && (
             <div>
-              <div className="fixed inset-0"></div>
+              <div className="fixed inset-0 bg bg-opacity-80"></div>
               <div className="fixed inset-0 z-50 flex items-center justify-center">
                 <div className="flex flex-col items-center justify-center gap-12 border-0 border-white p-8">
-                  <h2 className="text-5xl font-bold text-white">WINNER</h2>
-                  <p className="text-8xl font-bold text-yellow-300 rounded-lg">
+                  <h2 className="text-5xl font-bold text-amber-300">WINNER!</h2>
+                  <p className="text-7xl font-bold text-white rounded-lg">
                     {winner}
                   </p>
-                  {/* <Button
-                        onClick={() => setShowWinner(false)}
-                        className="mt-6 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl transition-all duration-300 transform hover:scale-105"
-                      >
-                        Close
-                      </Button> */}
+                  <Button
+                    onClick={() => setShowWinner(false)}
+                    className="mt-6 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    Close
+                  </Button>
                 </div>
               </div>
             </div>

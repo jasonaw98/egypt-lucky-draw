@@ -113,7 +113,14 @@
 }
 
 body {
-  font-family: "Cinzel", serif;
+  font-family: "JupiterAscending", normal, sans-serif;
+}
+
+@font-face {
+  font-family: 'JupiterAscending';
+  src: url('/font/JupiterFont.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 @layer base {
