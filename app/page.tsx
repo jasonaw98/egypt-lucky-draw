@@ -39,6 +39,7 @@ export default function LuckyDraw() {
   const [winner, setWinner] = useState<string | null>(null);
   const [currentNames, setCurrentNames] = useState<string[]>([]);
   const [showWinner, setShowWinner] = useState(false);
+  const [remainingNames, setRemainingNames] = useState<string[]>(dummyNames); // NEW
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,12 +48,10 @@ export default function LuckyDraw() {
   const rollingIndexRef = useRef(0);
 
   const handleConfetti = () => {
-    const end = Date.now() + 3 * 1000; // 3 seconds
+    const end = Date.now() + 3 * 1000;
     const colors = ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"];
-
     const frame = () => {
       if (Date.now() > end) return;
-
       confetti({
         particleCount: 3,
         angle: 60,
@@ -69,20 +68,23 @@ export default function LuckyDraw() {
         origin: { x: 0.8, y: 0.8 },
         colors: colors,
       });
-
       requestAnimationFrame(frame);
     };
-
     frame();
   };
 
+  // Use remainingNames for the spin
   const generateExtendedNames = useCallback(() => {
     const extended = [];
     for (let i = 0; i < 20; i++) {
-      extended.push(...dummyNames);
+      extended.push(...remainingNames);
     }
     return extended;
-  }, []);
+  }, [remainingNames]);
+
+  useEffect(() => {
+    setCurrentNames(generateExtendedNames());
+  }, [generateExtendedNames]);
 
   useEffect(() => {
     const handleclose = (e: KeyboardEvent) => {
@@ -93,10 +95,6 @@ export default function LuckyDraw() {
     window.addEventListener("keydown", handleclose);
     return () => window.removeEventListener("keydown", handleclose);
   }, [showWinner]);
-
-  useEffect(() => {
-    setCurrentNames(generateExtendedNames());
-  }, [generateExtendedNames]);
 
   const stopRolling = useCallback(() => {
     if (!isRolling) return;
@@ -120,12 +118,14 @@ export default function LuckyDraw() {
     const slowDownStep = () => {
       speed += 40;
       if (speed > 500) {
-        // Set winner to the name at index 6 (center of the display)
-        const finalWinner = currentNames[6] || dummyNames[0];
+        // Pick winner from the center
+        const finalWinner = currentNames[6] || remainingNames[0];
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
         handleConfetti();
+        // Remove winner from remainingNames
+        setRemainingNames((prev) => prev.filter((name) => name !== finalWinner));
         return;
       }
       currentIndex = (currentIndex + 1) % extendedNames.length;
@@ -137,15 +137,14 @@ export default function LuckyDraw() {
       slowDownTimeoutRef.current = setTimeout(slowDownStep, speed);
     };
     slowDownStep();
-  }, [isRolling, currentNames, generateExtendedNames]);
+  }, [isRolling, currentNames, generateExtendedNames, remainingNames]);
 
   const startRolling = useCallback(() => {
-    if (isRolling) return;
+    if (isRolling || remainingNames.length === 0) return;
     setIsRolling(true);
     setWinner(null);
     setShowWinner(false);
     setAnimationSpeed(50);
-    // setScrollOffset(0);
     rollingSpeedRef.current = 50;
     rollingIndexRef.current = 0;
 
@@ -158,7 +157,7 @@ export default function LuckyDraw() {
       setCurrentNames((prev) => {
         const newNames = [...prev];
         newNames.unshift(extendedNames[rollingIndexRef.current]);
-        return newNames.slice(0, 50); // Reduced to 50 for performance
+        return newNames.slice(0, 50);
       });
     }, rollingSpeedRef.current);
 
@@ -166,7 +165,7 @@ export default function LuckyDraw() {
     autoStopTimeoutRef.current = setTimeout(() => {
       stopRolling();
     }, 5000);
-  }, [isRolling, generateExtendedNames, stopRolling]);
+  }, [isRolling, generateExtendedNames, stopRolling, remainingNames.length]);
 
   const handleSpaceBar = useCallback(
     (e: KeyboardEvent) => {
@@ -230,7 +229,7 @@ export default function LuckyDraw() {
                   handleConfetti();
                 }}
               >
-                {winner || currentNames[6] || "Ready to Start"}
+                {winner || currentNames[6] || (remainingNames.length === 0 ? "No more names" : "Ready to Start")}
               </p>
             </div>
           </div>

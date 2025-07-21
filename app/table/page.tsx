@@ -38,6 +38,7 @@ export default function LuckyDraw() {
   const [winner, setWinner] = useState<string | null>(null);
   const [currentNumbers, setCurrentNumbers] = useState<string[]>([]);
   const [showWinner, setShowWinner] = useState(false);
+  const [remainingNumbers, setRemainingNumbers] = useState<string[]>(numberImages); // NEW
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,14 +72,18 @@ export default function LuckyDraw() {
     frame();
   };
 
-  // 2. Generate extended array of image filenames
+  // 2. Generate extended array of image filenames from remainingNumbers
   const generateExtendedNumbers = useCallback(() => {
     const extended: string[] = [];
     for (let i = 0; i < 20; i++) {
-      extended.push(...numberImages);
+      extended.push(...remainingNumbers);
     }
     return extended;
-  }, []);
+  }, [remainingNumbers]);
+
+  useEffect(() => {
+    setCurrentNumbers(generateExtendedNumbers());
+  }, [generateExtendedNumbers]);
 
   useEffect(() => {
     const handleclose = (e: KeyboardEvent) => {
@@ -87,10 +92,6 @@ export default function LuckyDraw() {
     window.addEventListener("keydown", handleclose);
     return () => window.removeEventListener("keydown", handleclose);
   }, [showWinner]);
-
-  useEffect(() => {
-    setCurrentNumbers(generateExtendedNumbers());
-  }, [generateExtendedNumbers]);
 
   const stopRolling = useCallback(() => {
     if (!isRolling) return;
@@ -115,11 +116,13 @@ export default function LuckyDraw() {
       speed += 40;
       if (speed > 500) {
         // 3. Set winner to the image at index 6
-        const finalWinner = currentNumbers[6] || numberImages[0];
+        const finalWinner = currentNumbers[6] || remainingNumbers[0];
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
         handleConfetti();
+        // Remove winner from remainingNumbers
+        setRemainingNumbers((prev) => prev.filter((img) => img !== finalWinner));
         return;
       }
       currentIndex = (currentIndex + 1) % extendedNumbers.length;
@@ -131,10 +134,10 @@ export default function LuckyDraw() {
       slowDownTimeoutRef.current = setTimeout(slowDownStep, speed);
     };
     slowDownStep();
-  }, [isRolling, currentNumbers, generateExtendedNumbers]);
+  }, [isRolling, currentNumbers, generateExtendedNumbers, remainingNumbers]);
 
   const startRolling = useCallback(() => {
-    if (isRolling) return;
+    if (isRolling || remainingNumbers.length === 0) return;
     setIsRolling(true);
     setWinner(null);
     setShowWinner(false);
@@ -159,7 +162,7 @@ export default function LuckyDraw() {
     autoStopTimeoutRef.current = setTimeout(() => {
       stopRolling();
     }, 5000);
-  }, [isRolling, generateExtendedNumbers, stopRolling]);
+  }, [isRolling, generateExtendedNumbers, stopRolling, remainingNumbers.length]);
 
   const handleSpaceBar = useCallback(
     (e: KeyboardEvent) => {
@@ -221,7 +224,7 @@ export default function LuckyDraw() {
               {!winner && (
                 <div className="overflow-hidden w-[300px] h-[400px] pt-8">
                   <Image
-                    src={`/numbers/${currentNumbers[6] || numberImages[0]}`}
+                    src={`/numbers/${currentNumbers[6] || remainingNumbers[0]}`}
                     alt="Spinning Number"
                     width={500}
                     height={500}
