@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
+import confetti from "canvas-confetti";
 
 const dummyNames = [
   "Fatima Al-Zahra",
@@ -41,11 +43,38 @@ export default function LuckyDraw() {
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [animationSpeed, setAnimationSpeed] = useState(100);
-  const [scrollOffset, setScrollOffset] = useState(0);
   const rollingSpeedRef = useRef(animationSpeed);
   const rollingIndexRef = useRef(0);
-  // const [showSplash, setShowSplash] = useState(true);
-  // const [splashMoved, setSplashMoved] = useState(false);
+
+  const handleConfetti = () => {
+    const end = Date.now() + 3 * 1000; // 3 seconds
+    const colors = ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"];
+
+    const frame = () => {
+      if (Date.now() > end) return;
+
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 80,
+        startVelocity: 60,
+        origin: { x: 0.2, y: 0.8 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0.8, y: 0.8 },
+        colors: colors,
+      });
+
+      requestAnimationFrame(frame);
+    };
+
+    frame();
+  };
 
   const generateExtendedNames = useCallback(() => {
     const extended = [];
@@ -55,24 +84,10 @@ export default function LuckyDraw() {
     return extended;
   }, []);
 
-  // useEffect(() => {
-  //   if (!showSplash) return;
-  //   const handleEnter = (e: KeyboardEvent) => {
-  //     if (e.code === "Enter") {
-  //       setSplashMoved(true);
-  //       setTimeout(() => setShowSplash(false), 100); // Wait for animation
-  //     }
-  //   };
-  //   window.addEventListener("keydown", handleEnter);
-  //   return () => window.removeEventListener("keydown", handleEnter);
-  // }, [showSplash]);
-
   useEffect(() => {
-    // if (!showWinner) return;
     const handleclose = (e: KeyboardEvent) => {
       if (e.code === "Enter" || e.code === "Escape") {
         setShowWinner(false);
-        // setTimeout(() => setShowWinner(false), 100); // Wait for animation
       }
     };
     window.addEventListener("keydown", handleclose);
@@ -110,6 +125,7 @@ export default function LuckyDraw() {
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
+        handleConfetti();
         return;
       }
       currentIndex = (currentIndex + 1) % extendedNames.length;
@@ -118,7 +134,6 @@ export default function LuckyDraw() {
         newNames.unshift(extendedNames[currentIndex]);
         return newNames.slice(0, 50);
       });
-      setScrollOffset((prev) => prev + 1);
       slowDownTimeoutRef.current = setTimeout(slowDownStep, speed);
     };
     slowDownStep();
@@ -130,7 +145,7 @@ export default function LuckyDraw() {
     setWinner(null);
     setShowWinner(false);
     setAnimationSpeed(50);
-    setScrollOffset(0);
+    // setScrollOffset(0);
     rollingSpeedRef.current = 50;
     rollingIndexRef.current = 0;
 
@@ -145,7 +160,6 @@ export default function LuckyDraw() {
         newNames.unshift(extendedNames[rollingIndexRef.current]);
         return newNames.slice(0, 50); // Reduced to 50 for performance
       });
-      setScrollOffset((prev) => prev + 1);
     }, rollingSpeedRef.current);
 
     if (autoStopTimeoutRef.current) clearTimeout(autoStopTimeoutRef.current);
@@ -188,95 +202,38 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[url(/table-bg.jpeg)] bg-no-repeat bg-cover bg-center p-4 flex w-full h-full items-center">
-      {/* <div
-        className={`fixed inset-0 flex items-center justify-center z-50 transition-transform duration-1000 ease-in-out bg-black bg-opacity-80 ${
-          splashMoved ? '-translate-y-full pointer-events-none' : ''
-        }`}>
+    <div className="min-h-screen bg-[url(/bg.jpg)] bg-no-repeat bg-cover bg-center p-4 flex w-full h-full items-center">
+      <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
         <Image
-          src="/kv.jpg"
+          src="/prize.png"
           alt="Splash"
-          width={2200}
-          height={640}
-          className="rounded-xl shadow-2xl"
+          width={400}
+          height={500}
+          className=""
         />
-      </div> */}
+      </div>
       <div className="w-full h-full">
-        <div className="relative z-10">
-          {/* Main Slot Machine */}
-          <div className="flex pl-12">
-            <div className="w-full max-w-2xl">
-                {/* Slot Machine Display */}
-                <div className="relative bg-gradient-to-b  p-6 overflow-hidden rounded-2xl">
-                  {/* Highlight box for center name */}
-                  <div className="absolute inset-x-6 top-1/2 transform -translate-y-1/2 z-30">
-                    <div className="bg-gradient-to-r from-amber-400 to-yellow-400 p-4 rounded-lg border-4 border-yellow-300 shadow-2xl animate-">
-                      <div className="bg-gradient-to-r from-amber-600 to-yellow-600 p-2 rounded">
-                        <div className="text-center text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
-                          {winner || currentNames[6] || "Ready to Start"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="h-[30rem] overflow-hidden relative">
-                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-blue-950 to-transparent z-20 pointer-events-none"></div>
-                    <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-blue-950 to-transparent z-20 pointer-events-none"></div>
-
-                    <div
-                      className={`space-y-2 transition-transform ${
-                        isRolling ? "duration-75" : "duration-500"
-                      } ease-linear`}
-                      style={{
-                        transform: `translateY(${
-                          isRolling ? -(scrollOffset * 60) % (60 * 15) : 0
-                        }px)`,
-                      }}
-                    >
-                      {currentNames.slice(0, 15).map((name, index) => (
-                        <div
-                          key={`${name}-${index}-${scrollOffset}`}
-                          className={`text-center py-5 px-4 rounded-lg font-semibold text-lg transition-all duration-300 ${
-                            index === 6
-                              ? "bg-transparent text-transparent"
-                              : index < 6 || index > 6
-                              ? `bg-blue-800/50 text-amber-100 border border-blue-600/50`
-                              : "bg-blue-700/50 text-amber-200"
-                          } ${isRolling ? "blur-[0.5px]" : ""}`}
-                        >
-                          <div
-                            className={`${isRolling ? "animate-bounce" : ""}`}
-                          >
-                            {name}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
+        <div
+          className={` transition-all duration-1000 ease-in-out ${
+            showWinner ? "opacity-100" : "opacity-100"
+          }`}
+        >
+          <div className="fixed inset-0"></div>
+          <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
+              <h2 className="text-5xl font-bold text-white">WINNER</h2>
+              <p
+                className={`text-9xl font-bold text-yellow-300 drop-shadow-3xl ${
+                  winner ? "animate-bounce" : ""
+                }`}
+                onClick={() => {
+                  handleConfetti();
+                }}
+              >
+                {winner || currentNames[6] || "Ready to Start"}
+              </p>
             </div>
           </div>
-
-          {/* Winner Announcement */}
-          {true && true && (
-            <div>
-              <div className="fixed inset-0"></div>
-              <div className="fixed inset-0 z-50 flex items-center justify-center">
-                <div className="flex flex-col items-center justify-center gap-12 border-0 border-white p-8">
-                  <h2 className="text-5xl font-bold text-white">WINNER</h2>
-                  <p className="text-8xl font-bold text-yellow-300 rounded-lg">
-                    {winner}
-                  </p>
-                  {/* <Button
-                        onClick={() => setShowWinner(false)}
-                        className="mt-6 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg text-xl transition-all duration-300 transform hover:scale-105"
-                      >
-                        Close
-                      </Button> */}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
