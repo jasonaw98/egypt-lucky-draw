@@ -193,46 +193,60 @@ export default function LuckyDraw() {
 
   // 4. Render the spinning images and winner image
   return (
-    <div className="min-h-screen bg-[url(/bg.jpg)] bg-no-repeat bg-cover bg-center p-4 flex w-full h-full items-center">
-      <div className="fixed left-1/2 top-18 -translate-x-1/2">
-        <p className="text-[13rem] font-bold text-yellow-300 mt-8">
-          Table Draw
-        </p>
-      </div>
-      <div className="w-full h-full">
-        <div
-          className={`transition-all duration-1000 ease-in-out ${
-            showWinner ? "opacity-100" : "opacity-100"
-          }`}
-        >
-          <div className="fixed inset-0"></div>
-          <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
-            <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
-              {/* Winner image with blinking animation */}
-              {winner && (
-                <div className="overflow-x-hidden w-[300px] h-[400px] pt-28">
-                  <Image
-                    src={`/numbers/${winner}`}
-                    alt="Winner"
-                    width={600}
-                    height={600}
-                    className="animate-bounce drop-shadow-3xl -ml-[95px] scale-180"
-                    priority
-                  />
-                </div>
-              )}
-              {!winner && (
-                <div className="overflow-hidden w-[300px] h-[400px] pt-8">
-                  <Image
-                    src={`/numbers/${currentNumbers[6] || remainingNumbers[0]}`}
-                    alt="Spinning Number"
-                    width={500}
-                    height={500}
-                    className="drop-shadow-3xl -ml-[90px] scale-180"
-                    priority
-                  />
-                </div>
-              )}
+    <div className="relative min-h-screen w-full h-full flex items-center">
+      {/* Video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      >
+        <source src="/bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      {/* Overlay content */}
+      <div className="relative z-10 w-full h-full p-4 flex items-center">
+        <div className="fixed left-1/2 top-18 -translate-x-1/2">
+          <p className="text-[13rem] font-bold text-yellow-300 mt-8">
+            Table Draw
+          </p>
+        </div>
+        <div className="w-full h-full">
+          <div
+            className={`transition-all duration-1000 ease-in-out ${
+              showWinner ? "opacity-100" : "opacity-100"
+            }`}
+          >
+            <div className="fixed inset-0"></div>
+            <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
+                {/* Winner image with blinking animation */}
+                {winner && (
+                  <div className="overflow-x-hidden w-[300px] h-[400px] pt-28">
+                    <Image
+                      src={`/numbers/${winner}`}
+                      alt="Winner"
+                      width={600}
+                      height={600}
+                      className="animate-bounce drop-shadow-3xl -ml-[95px] scale-180"
+                      priority
+                    />
+                  </div>
+                )}
+                {!winner && (
+                  <div className="overflow-hidden w-[300px] h-[400px] pt-8">
+                    <Image
+                      src={`/numbers/${currentNumbers[6] || remainingNumbers[0]}`}
+                      alt="Spinning Number"
+                      width={500}
+                      height={500}
+                      className="drop-shadow-3xl -ml-[90px] scale-180"
+                      priority
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

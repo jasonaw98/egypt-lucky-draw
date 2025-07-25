@@ -3,36 +3,38 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import confetti from "canvas-confetti";
+import { name_list } from "@/lib/const";
 
-const dummyNames = [
-  "Fatima Al-Zahra",
-  "Omar Khaled",
-  "Nour El-Din",
-  "Layla Mansour",
-  "Karim Farouk",
-  "Yasmin Nabil",
-  "Tariq Mahmoud",
-  "Zara Ibrahim",
-  "Amr Mostafa",
-  "Dina Rashid",
-  "Hany Salim",
-  "Rania Fouad",
-  "Saeed Youssef",
-  "Mona Hegazy",
-  "Tamer Abdel",
-  "Hoda Kamel",
-  "Hatem Magdy",
-  "Nesrine Saad",
-  "Adel Hosny",
-  "Ghada Fares",
-  "Sherif Wahid",
-  "Dalia Osama",
-  "Medhat Amer",
-  "Noha Fahmy",
-  "Eslam Tarek",
-  "Doaa Mahmoud",
-  "Khaled Nasser",
-];
+const dummyNames = name_list
+// const dummyNames = [
+//   "Fatima Al-Zahra",
+//   "Omar Khaled",
+//   "Nour El-Din",
+//   "Layla Mansour",
+//   "Karim Farouk",
+//   "Yasmin Nabil",
+//   "Tariq Mahmoud",
+//   "Zara Ibrahim",
+//   "Amr Mostafa",
+//   "Dina Rashid",
+//   "Hany Salim",
+//   "Rania Fouad",
+//   "Saeed Youssef",
+//   "Mona Hegazy",
+//   "Tamer Abdel",
+//   "Hoda Kamel",
+//   "Hatem Magdy",
+//   "Nesrine Saad",
+//   "Adel Hosny",
+//   "Ghada Fares",
+//   "Sherif Wahid",
+//   "Dalia Osama",
+//   "Medhat Amer",
+//   "Noha Fahmy",
+//   "Eslam Tarek",
+//   "Doaa Mahmoud",
+//   "Khaled Nasser",
+// ];
 
 export default function LuckyDraw() {
   const [isRolling, setIsRolling] = useState(false);
@@ -201,36 +203,50 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[url(/bg.jpg)] bg-no-repeat bg-cover bg-center p-4 flex w-full h-full items-center">
-      <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
-        <Image
-          src="/prize.png"
-          alt="Splash"
-          width={400}
-          height={500}
-          className=""
-        />
-      </div>
-      <div className="w-full h-full">
-        <div
-          className={` transition-all duration-1000 ease-in-out ${
-            showWinner ? "opacity-100" : "opacity-100"
-          }`}
-        >
-          <div className="fixed inset-0"></div>
-          <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
-            <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
-              <h2 className="text-5xl font-bold text-white">WINNER</h2>
-              <p
-                className={`text-9xl font-bold text-yellow-300 drop-shadow-3xl ${
-                  winner ? "animate-bounce" : ""
-                }`}
-                onClick={() => {
-                  handleConfetti();
-                }}
-              >
-                {winner || currentNames[6] || (remainingNames.length === 0 ? "No more names" : "Ready to Start")}
-              </p>
+    <div className="relative min-h-screen w-full h-full flex items-center">
+      {/* Video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      >
+        <source src="/bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      {/* Overlay content */}
+      <div className="relative z-10 w-full h-full p-4 flex items-center">
+        <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
+          <Image
+            src="/prize.png"
+            alt="Splash"
+            width={400}
+            height={500}
+            className=""
+          />
+        </div>
+        <div className="w-full h-full">
+          <div
+            className={` transition-all duration-1000 ease-in-out ${
+              showWinner ? "opacity-100" : "opacity-100"
+            }`}
+          >
+            <div className="fixed inset-0"></div>
+            <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
+                <h2 className="text-5xl font-bold text-white">WINNER</h2>
+                <p
+                  className={`text-9xl font-bold text-yellow-300 drop-shadow-3xl ${
+                    winner ? "animate-bounce" : ""
+                  }`}
+                  onClick={() => {
+                    handleConfetti();
+                  }}
+                >
+                  {winner || currentNames[6] || (remainingNames.length === 0 ? "No more names" : "Ready to Start")}
+                </p>
+              </div>
             </div>
           </div>
         </div>
