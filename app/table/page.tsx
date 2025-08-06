@@ -6,31 +6,29 @@ import confetti from "canvas-confetti";
 
 // 1. Use image filenames instead of names
 const numberImages = [
-  "1-8.png",
-  "2-8.png",
-  "3-8.png",
-  "4-8.png",
-  "5-8.png",
-  "6-8.png",
-  "7-8.png",
-  "8-8.png",
-  "9-8.png",
-  "10-8.png",
-  "11-8.png",
-  "12-8.png",
-  "13-8.png",
-  "14-8.png",
-  "15-8.png",
-  "16-8.png",
-  "17-8.png",
-  "18-8.png",
-  "19-8.png",
-  "20-8.png",
-  "21-8.png",
-  "22-8.png",
-  "23-8.png",
-  "24-8.png",
-  "25-8.png",
+  "1.png",
+  "2.png",
+  "3.png",
+  "4.png",
+  "5.png",
+  "6.png",
+  "7.png",
+  "8.png",
+  "9.png",
+  "10.png",
+  "11.png",
+  "12.png",
+  "13.png",
+  "14.png",
+  "15.png",
+  "16.png",
+  "17.png",
+  "18.png",
+  "19.png",
+  "20.png",
+  "21.png",
+  "22.png",
+  "23.png",
 ];
 
 export default function LuckyDraw() {
@@ -38,7 +36,8 @@ export default function LuckyDraw() {
   const [winner, setWinner] = useState<string | null>(null);
   const [currentNumbers, setCurrentNumbers] = useState<string[]>([]);
   const [showWinner, setShowWinner] = useState(false);
-  const [remainingNumbers, setRemainingNumbers] = useState<string[]>(numberImages); // NEW
+  const [remainingNumbers, setRemainingNumbers] =
+    useState<string[]>(numberImages); // NEW
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -115,14 +114,15 @@ export default function LuckyDraw() {
     const slowDownStep = () => {
       speed += 40;
       if (speed > 500) {
-        // 3. Set winner to the image at index 6
         const finalWinner = currentNumbers[6] || remainingNumbers[0];
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
         handleConfetti();
         // Remove winner from remainingNumbers
-        setRemainingNumbers((prev) => prev.filter((img) => img !== finalWinner));
+        setRemainingNumbers((prev) =>
+          prev.filter((img) => img !== finalWinner)
+        );
         return;
       }
       currentIndex = (currentIndex + 1) % extendedNumbers.length;
@@ -162,7 +162,12 @@ export default function LuckyDraw() {
     autoStopTimeoutRef.current = setTimeout(() => {
       stopRolling();
     }, 5000);
-  }, [isRolling, generateExtendedNumbers, stopRolling, remainingNumbers.length]);
+  }, [
+    isRolling,
+    generateExtendedNumbers,
+    stopRolling,
+    remainingNumbers.length,
+  ]);
 
   const handleSpaceBar = useCallback(
     (e: KeyboardEvent) => {
@@ -202,7 +207,7 @@ export default function LuckyDraw() {
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
       >
-        <source src="/bg.mp4" type="video/mp4" />
+        <source src="/tbdraw.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       {/* Overlay content */}
@@ -223,25 +228,25 @@ export default function LuckyDraw() {
               <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
                 {/* Winner image with blinking animation */}
                 {winner && (
-                  <div className="overflow-x-hidden w-[300px] h-[400px] pt-28">
+                  <div className="-mt-10">
                     <Image
-                      src={`/numbers/${winner}`}
+                      src={`/png/${winner}`}
                       alt="Winner"
                       width={600}
-                      height={600}
-                      className="animate-bounce drop-shadow-3xl -ml-[95px] scale-180"
+                      height={500}
+                      className="animate-bounce drop-shadow-3xl"
                       priority
                     />
                   </div>
                 )}
                 {!winner && (
-                  <div className="overflow-hidden w-[300px] h-[400px] pt-8">
+                  <div className="-mt-10">
                     <Image
-                      src={`/numbers/${currentNumbers[6] || remainingNumbers[0]}`}
+                      src={`/png/${currentNumbers[6] || remainingNumbers[0]}`}
                       alt="Spinning Number"
-                      width={500}
+                      width={600}
                       height={500}
-                      className="drop-shadow-3xl -ml-[90px] scale-180"
+                      className="drop-shadow-3xl"
                       priority
                     />
                   </div>

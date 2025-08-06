@@ -1,40 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Image from "next/image";
+// import Image from "next/image";
 import confetti from "canvas-confetti";
 import { name_list } from "@/lib/const";
 
-const dummyNames = name_list
-// const dummyNames = [
-//   "Fatima Al-Zahra",
-//   "Omar Khaled",
-//   "Nour El-Din",
-//   "Layla Mansour",
-//   "Karim Farouk",
-//   "Yasmin Nabil",
-//   "Tariq Mahmoud",
-//   "Zara Ibrahim",
-//   "Amr Mostafa",
-//   "Dina Rashid",
-//   "Hany Salim",
-//   "Rania Fouad",
-//   "Saeed Youssef",
-//   "Mona Hegazy",
-//   "Tamer Abdel",
-//   "Hoda Kamel",
-//   "Hatem Magdy",
-//   "Nesrine Saad",
-//   "Adel Hosny",
-//   "Ghada Fares",
-//   "Sherif Wahid",
-//   "Dalia Osama",
-//   "Medhat Amer",
-//   "Noha Fahmy",
-//   "Eslam Tarek",
-//   "Doaa Mahmoud",
-//   "Khaled Nasser",
-// ];
+const dummyNames = name_list;
 
 export default function LuckyDraw() {
   const [isRolling, setIsRolling] = useState(false);
@@ -127,7 +98,9 @@ export default function LuckyDraw() {
         setShowWinner(true);
         handleConfetti();
         // Remove winner from remainingNames
-        setRemainingNames((prev) => prev.filter((name) => name !== finalWinner));
+        setRemainingNames((prev) =>
+          prev.filter((name) => name !== finalWinner)
+        );
         return;
       }
       currentIndex = (currentIndex + 1) % extendedNames.length;
@@ -212,12 +185,12 @@ export default function LuckyDraw() {
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
       >
-        <source src="/bg.mp4" type="video/mp4" />
+        <source src="/grand.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       {/* Overlay content */}
       <div className="relative z-10 w-full h-full p-4 flex items-center">
-        <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
+        {/* <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
           <Image
             src="/prize.png"
             alt="Splash"
@@ -225,7 +198,7 @@ export default function LuckyDraw() {
             height={500}
             className=""
           />
-        </div>
+        </div> */}
         <div className="w-full h-full">
           <div
             className={` transition-all duration-1000 ease-in-out ${
@@ -233,18 +206,22 @@ export default function LuckyDraw() {
             }`}
           >
             <div className="fixed inset-0"></div>
-            <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
+            <div className="fixed left-1/2 top-5/12 -translate-x-1/2 z-50 flex items-center justify-center">
               <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
-                <h2 className="text-5xl font-bold text-white">WINNER</h2>
+                {/* <h2 className="text-5xl font-bold text-white">WINNER</h2> */}
                 <p
-                  className={`text-9xl font-bold text-yellow-300 drop-shadow-3xl ${
-                    winner ? "animate-bounce" : ""
+                  className={`text-7xl font-bold text-yellow-300 drop-shadow-3xl text-center ${
+                    winner ? "animate-bounce mt-4" : ""
                   }`}
                   onClick={() => {
                     handleConfetti();
                   }}
                 >
-                  {winner || currentNames[6] || (remainingNames.length === 0 ? "No more names" : "Ready to Start")}
+                  {winner ||
+                    currentNames[6] ||
+                    (remainingNames.length === 0
+                      ? "No more names"
+                      : "Ready to Start")}
                 </p>
               </div>
             </div>
