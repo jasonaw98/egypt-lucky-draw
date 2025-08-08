@@ -38,6 +38,7 @@ export default function LuckyDraw() {
   const [showWinner, setShowWinner] = useState(false);
   const [remainingNumbers, setRemainingNumbers] =
     useState<string[]>(numberImages); // NEW
+  const [showNumberImage, setShowNumberImage] = useState(false); // NEW
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const slowDownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoStopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -118,8 +119,8 @@ export default function LuckyDraw() {
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
+        setShowNumberImage(true); // <-- KEEP IMAGE SHOWN AFTER WINNER
         handleConfetti();
-        // Remove winner from remainingNumbers
         setRemainingNumbers((prev) =>
           prev.filter((img) => img !== finalWinner)
         );
@@ -144,6 +145,7 @@ export default function LuckyDraw() {
     setAnimationSpeed(50);
     rollingSpeedRef.current = 50;
     rollingIndexRef.current = 0;
+    setShowNumberImage(true); // <-- SHOW IMAGE WHEN START ROLLING
 
     const extendedNumbers = generateExtendedNumbers();
 
@@ -227,7 +229,7 @@ export default function LuckyDraw() {
             <div className="fixed left-1/2 top-4/8 -translate-x-1/2 z-50 flex items-center justify-center">
               <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
                 {/* Winner image with blinking animation */}
-                {winner && (
+                {showNumberImage && winner && (
                   <div className="-mt-10">
                     <Image
                       src={`/png/${winner}`}
@@ -239,7 +241,7 @@ export default function LuckyDraw() {
                     />
                   </div>
                 )}
-                {!winner && (
+                {showNumberImage && !winner && (
                   <div className="-mt-10">
                     <Image
                       src={`/png/${currentNumbers[6] || remainingNumbers[0]}`}
@@ -251,6 +253,7 @@ export default function LuckyDraw() {
                     />
                   </div>
                 )}
+                {/* If showNumberImage is false, show nothing */}
               </div>
             </div>
           </div>

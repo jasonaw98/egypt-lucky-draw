@@ -20,25 +20,27 @@ export default function LuckyDraw() {
   const rollingSpeedRef = useRef(animationSpeed);
   const rollingIndexRef = useRef(0);
 
+  const [showNumberImage, setShowNumberImage] = useState(false);
+
   const handleConfetti = () => {
     const end = Date.now() + 3 * 1000;
     const colors = ["#FFE400", "#FFBD00", "#E89400", "#FFCA6C", "#FDFFB8"];
     const frame = () => {
       if (Date.now() > end) return;
       confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 80,
+        particleCount: 4,
+        angle: 40,
+        spread: 55,
         startVelocity: 60,
-        origin: { x: 0.2, y: 0.8 },
+        origin: { x: 0.3, y: 0.6 },
         colors: colors,
       });
       confetti({
-        particleCount: 3,
-        angle: 120,
+        particleCount: 4,
+        angle: 140,
         spread: 55,
         startVelocity: 60,
-        origin: { x: 0.8, y: 0.8 },
+        origin: { x: 0.7, y: 0.6 },
         colors: colors,
       });
       requestAnimationFrame(frame);
@@ -96,6 +98,7 @@ export default function LuckyDraw() {
         setWinner(finalWinner);
         setIsRolling(false);
         setShowWinner(true);
+        setShowNumberImage(true);
         handleConfetti();
         // Remove winner from remainingNames
         setRemainingNames((prev) =>
@@ -122,6 +125,7 @@ export default function LuckyDraw() {
     setAnimationSpeed(50);
     rollingSpeedRef.current = 50;
     rollingIndexRef.current = 0;
+    setShowNumberImage(true);
 
     const extendedNames = generateExtendedNames();
 
@@ -176,9 +180,9 @@ export default function LuckyDraw() {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full h-full flex items-center">
+    <div className="relative min-h-screen w-full h-full flex items-center bg-gray-900">
       {/* Video background */}
-      <video
+      {/* <video
         autoPlay
         loop
         muted
@@ -187,7 +191,7 @@ export default function LuckyDraw() {
       >
         <source src="/grand.mp4" type="video/mp4" />
         Your browser does not support the video tag.
-      </video>
+      </video> */}
       {/* Overlay content */}
       <div className="relative z-10 w-full h-full p-4 flex items-center">
         {/* <div className={`fixed left-1/2 top-18 -translate-x-1/2`}>
@@ -209,7 +213,7 @@ export default function LuckyDraw() {
             <div className="fixed left-1/2 top-5/12 -translate-x-1/2 z-50 flex items-center justify-center">
               <div className="flex flex-col items-center justify-center gap-16 border-0 border-white p-8">
                 {/* <h2 className="text-5xl font-bold text-white">WINNER</h2> */}
-                <p
+               {showNumberImage && <p
                   className={`text-7xl font-bold text-yellow-300 drop-shadow-3xl text-center ${
                     winner ? "animate-bounce mt-4" : ""
                   }`}
@@ -222,7 +226,7 @@ export default function LuckyDraw() {
                     (remainingNames.length === 0
                       ? "No more names"
                       : "Ready to Start")}
-                </p>
+                </p>}
               </div>
             </div>
           </div>
